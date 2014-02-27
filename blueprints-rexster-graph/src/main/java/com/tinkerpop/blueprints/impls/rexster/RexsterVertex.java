@@ -1,5 +1,6 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -8,7 +9,6 @@ import com.tinkerpop.blueprints.util.DefaultVertexQuery;
 import com.tinkerpop.blueprints.util.MultiIterable;
 import com.tinkerpop.blueprints.util.StringFactory;
 import com.tinkerpop.blueprints.util.VerticesFromEdgesIterable;
-import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class RexsterVertex extends RexsterElement implements Vertex {
 
-    protected RexsterVertex(final JSONObject rawVertex, final RexsterGraph graph) {
+    protected RexsterVertex(final JsonNode rawVertex, final RexsterGraph graph) {
         super(rawVertex, graph);
     }
 
@@ -80,7 +80,7 @@ public class RexsterVertex extends RexsterElement implements Vertex {
         return StringFactory.vertexString(this);
     }
 
-    public JSONObject getRawVertex() {
+    public JsonNode getRawVertex() {
         return RestHelper.getResultObject(graph.getGraphURI() + RexsterTokens.SLASH_VERTICES_SLASH + this.getId());
     }
 

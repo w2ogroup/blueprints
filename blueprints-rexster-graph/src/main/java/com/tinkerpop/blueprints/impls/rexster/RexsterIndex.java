@@ -1,12 +1,14 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tinkerpop.blueprints.CloseableIterable;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.StringFactory;
-import org.codehaus.jettison.json.JSONObject;
+
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optLong;
 
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
@@ -79,7 +81,7 @@ class RexsterIndex<T extends Element> implements Index<T> {
     }
 
     public long count(final String key, final Object value) {
-        final JSONObject countJson = RestHelper.get(this.graph.getGraphURI() + RexsterTokens.SLASH_INDICES_SLASH + RestHelper.encode(this.indexName) + RexsterTokens.SLASH_COUNT + RexsterTokens.QUESTION + RexsterTokens.KEY_EQUALS + key + RexsterTokens.AND + RexsterTokens.VALUE_EQUALS + RestHelper.uriCast(value));
-        return countJson.optLong("totalSize");
+        final ObjectNode countJson = RestHelper.get(this.graph.getGraphURI() + RexsterTokens.SLASH_INDICES_SLASH + RestHelper.encode(this.indexName) + RexsterTokens.SLASH_COUNT + RexsterTokens.QUESTION + RexsterTokens.KEY_EQUALS + key + RexsterTokens.AND + RexsterTokens.VALUE_EQUALS + RestHelper.uriCast(value));
+        return optLong(countJson, "totalSize");
     }
 }

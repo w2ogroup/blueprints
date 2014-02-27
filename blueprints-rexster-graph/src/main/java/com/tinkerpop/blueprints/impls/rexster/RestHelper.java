@@ -1,9 +1,12 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONTokens;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-import org.codehaus.jettison.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +18,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.getJsonNode;
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optArray;
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optObject;
+
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
  * @author Stephen Mallette (http://stephen.genoprime.com)
@@ -25,36 +32,37 @@ final class RestHelper {
     private static final String PUT = "PUT";
     private static final String DELETE = "DELETE";
 
-    static JSONObject get(final String uri) {
+    static ObjectNode get(final String uri) {
         try {
             final URLConnection connection = createConnection(uri, null, RexsterTokens.APPLICATION_REXSTER_TYPED_JSON);
             connection.connect();
-            return new JSONObject(new JSONTokener(convertStreamToString(connection.getInputStream())));
+            InputStream inputStream = connection.getInputStream();
+            return getJsonNode(inputStream);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    static JSONArray getResultArray(final String uri) {
-        return RestHelper.get(safeUri(uri)).optJSONArray(RexsterTokens.RESULTS);
+    static ArrayNode getResultArray(final String uri) {
+        return optArray(RestHelper.get(safeUri(uri)), RexsterTokens.RESULTS);
     }
 
-    static JSONObject getResultObject(final String uri) {
-        return RestHelper.get(safeUri(uri)).optJSONObject(RexsterTokens.RESULTS);
+    static ObjectNode getResultObject(final String uri) {
+        return optObject(RestHelper.get(safeUri(uri)), RexsterTokens.RESULTS);
     }
 
-    static JSONArray postResultArray(final String uri, final JSONObject json) {
-        return post(uri, json.toString(), RexsterTokens.APPLICATION_JSON,
-                RexsterTokens.APPLICATION_JSON, false).optJSONArray(RexsterTokens.RESULTS);
+    static ArrayNode postResultArray(final String uri, final ObjectNode json) {
+        return optArray(post(uri, json.toString(), RexsterTokens.APPLICATION_JSON,
+                RexsterTokens.APPLICATION_JSON, false), RexsterTokens.RESULTS);
     }
 
-    static JSONObject postResultObject(final String uri) {
-        return post(uri, postData(uri), null, RexsterTokens.APPLICATION_JSON, false).optJSONObject(RexsterTokens.RESULTS);
+    static ObjectNode postResultObject(final String uri) {
+        return optObject(post(uri, postData(uri), null, RexsterTokens.APPLICATION_JSON, false), RexsterTokens.RESULTS);
     }
 
-    static JSONObject postResultObject(final String uri, final JSONObject json) {
-        return post(uri, json.toString(), RexsterTokens.APPLICATION_REXSTER_TYPED_JSON,
-                RexsterTokens.APPLICATION_REXSTER_TYPED_JSON, false).optJSONObject(RexsterTokens.RESULTS);
+    static ObjectNode postResultObject(final String uri, final ObjectNode json) {
+        return optObject(post(uri, json.toString(), RexsterTokens.APPLICATION_REXSTER_TYPED_JSON,
+                RexsterTokens.APPLICATION_REXSTER_TYPED_JSON, false), RexsterTokens.RESULTS);
     }
 
     static void post(final String uri) {
@@ -140,7 +148,7 @@ final class RestHelper {
         return connection;
     }
 
-    private static JSONObject post(final String uri, final String postData, final String contentType,
+    private static ObjectNode post(final String uri, final String postData, final String contentType,
                                    final String accept, final boolean noResult) {
         try {
             final HttpURLConnection connection = createConnection(uri, contentType, accept);
@@ -154,7 +162,7 @@ final class RestHelper {
                 new InputStreamReader(connection.getInputStream()).close();
                 return null;
             } else {
-                return new JSONObject(new JSONTokener(convertStreamToString(connection.getInputStream())));
+                return getJsonNode(connection.getInputStream());
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

@@ -1,11 +1,15 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.ExceptionFactory;
 import com.tinkerpop.blueprints.util.StringFactory;
-import org.codehaus.jettison.json.JSONObject;
+
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optObject;
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optText;
 
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
@@ -17,11 +21,11 @@ public class RexsterEdge extends RexsterElement implements Edge {
     private final Object inVertex;
 
 
-    protected RexsterEdge(final JSONObject rawEdge, final RexsterGraph graph) {
+    protected RexsterEdge(final JsonNode rawEdge, final RexsterGraph graph) {
         super(rawEdge, graph);
-        this.label = rawEdge.optString(RexsterTokens._LABEL);
-        this.outVertex = rawEdge.opt(RexsterTokens._OUTV);
-        this.inVertex = rawEdge.opt(RexsterTokens._INV);
+        this.label = optText(rawEdge, RexsterTokens._LABEL);
+        this.outVertex = optObject(rawEdge, RexsterTokens._OUTV);
+        this.inVertex = optObject(rawEdge, RexsterTokens._INV);
     }
 
     public Vertex getVertex(final Direction direction) {
@@ -42,7 +46,7 @@ public class RexsterEdge extends RexsterElement implements Edge {
         return StringFactory.E + StringFactory.L_BRACKET + this.getId() + StringFactory.R_BRACKET + StringFactory.L_BRACKET + this.outVertex + StringFactory.DASH + this.getLabel() + StringFactory.ARROW + this.inVertex + StringFactory.R_BRACKET;
     }
 
-    public JSONObject getRawEdge() {
+    public ObjectNode getRawEdge() {
         return RestHelper.getResultObject(graph.getGraphURI() + RexsterTokens.SLASH_EDGES_SLASH + this.getId());
     }
 

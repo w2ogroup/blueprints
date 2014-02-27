@@ -1,16 +1,20 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.ElementHelper;
-import org.codehaus.jettison.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optObject;
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optText;
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.toObjectNode;
 
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
@@ -21,8 +25,8 @@ abstract class RexsterElement implements Element {
     protected final Object id;
     protected final RexsterGraph graph;
 
-    public RexsterElement(final JSONObject rawElement, final RexsterGraph graph) {
-        this.id = rawElement.opt(RexsterTokens._ID);
+    public RexsterElement(final JsonNode rawElement, final RexsterGraph graph) {
+        this.id = rawElement.get(RexsterTokens._ID);
         this.graph = graph;
     }
 
@@ -31,7 +35,7 @@ abstract class RexsterElement implements Element {
     }
 
     public Set<String> getPropertyKeys() {
-        JSONObject rawElement;
+        ObjectNode rawElement;
 
         if (this instanceof Vertex)
             rawElement = RestHelper.getResultObject(this.graph.getGraphURI() + RexsterTokens.SLASH_VERTICES_SLASH + RestHelper.encode(this.getId()));
@@ -39,7 +43,7 @@ abstract class RexsterElement implements Element {
             rawElement = RestHelper.getResultObject(this.graph.getGraphURI() + RexsterTokens.SLASH_EDGES_SLASH + RestHelper.encode(this.getId()));
 
         Set<String> keys = new HashSet<String>();
-        Iterator keyIterator = rawElement.keys();
+        Iterator keyIterator = rawElement.fieldNames();
         while (keyIterator.hasNext()) {
             keys.add((String) keyIterator.next());
         }
@@ -61,16 +65,17 @@ abstract class RexsterElement implements Element {
             this.graph.removeEdge((Edge) this);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getProperty(final String key) {
-        JSONObject rawElement;
+        ObjectNode rawElement;
         if (this instanceof Vertex)
             rawElement = RestHelper.getResultObject(this.graph.getGraphURI() + RexsterTokens.SLASH_VERTICES_SLASH + RestHelper.encode(this.getId()) + RexsterTokens.QUESTION + RexsterTokens.REXSTER_SHOW_TYPES_EQUALS_TRUE);
         else
             rawElement = RestHelper.getResultObject(this.graph.getGraphURI() + RexsterTokens.SLASH_EDGES_SLASH + RestHelper.encode(this.getId()) + RexsterTokens.QUESTION + RexsterTokens.REXSTER_SHOW_TYPES_EQUALS_TRUE);
 
-        JSONObject typedProperty = rawElement.optJSONObject(key);
+        ObjectNode typedProperty = optObject(rawElement, key);
         if (null != typedProperty)
-            return (T) RestHelper.typeCast(typedProperty.optString(RexsterTokens.TYPE), typedProperty.opt(RexsterTokens.VALUE));
+            return (T) RestHelper.typeCast(optText(typedProperty, RexsterTokens.TYPE), typedProperty.get(RexsterTokens.VALUE));
         else
             return null;
     }
@@ -82,7 +87,7 @@ abstract class RexsterElement implements Element {
 
         final Map<String, Object> data = new HashMap<String, Object>();
         data.put(key, RestHelper.uriCast(value));
-        final JSONObject json = new JSONObject(data);
+        final ObjectNode json = toObjectNode(data);
 
         if (this instanceof Vertex) {
             RestHelper.postResultObject(this.graph.getGraphURI() + RexsterTokens.SLASH_VERTICES_SLASH + RestHelper.encode(this.getId()), json);

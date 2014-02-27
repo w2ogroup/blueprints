@@ -1,11 +1,11 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.TestSuite;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.GraphTest;
 import junit.framework.Assert;
-import org.codehaus.jettison.json.JSONArray;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,25 +54,25 @@ public class RexsterGraphSpecificTestSuite extends TestSuite {
             final RexsterGraph g = (RexsterGraph) graphTest.generateGraph();
             ((RexsterGraphTest) graphTest).resetGraph();
 
-            final JSONArray additionResults = g.execute("1+1");
-            Assert.assertEquals(2, additionResults.optInt(0));
+            final ArrayNode additionResults = g.execute("1+1");
+            Assert.assertEquals(2, additionResults.get(0).asInt());
 
             g.addVertex("1");
             g.addVertex("2");
             g.addVertex("3");
 
-            final JSONArray graphResults = g.execute("g.V.count()");
-            Assert.assertEquals(3, graphResults.optInt(0));
+            final ArrayNode graphResults = g.execute("g.V.count()");
+            Assert.assertEquals(3, graphResults.get(0).asInt());
 
             final Map<String, Object> args = new HashMap<String, Object>() {{
                 put("x", "2");
             }};
 
-            final JSONArray paramResults = g.execute("g.v(x)._().count()", args);
-            Assert.assertEquals(1, paramResults.optInt(0));
+            final ArrayNode paramResults = g.execute("g.v(x)._().count()", args);
+            Assert.assertEquals(1, paramResults.get(0).asInt());
 
-            final JSONArray jsonParamResults = g.execute("g.v(x)._().count()", "{\"x\":\"2\"}");
-            Assert.assertEquals(1, jsonParamResults.optInt(0));
+            final ArrayNode jsonParamResults = g.execute("g.v(x)._().count()", "{\"x\":\"2\"}");
+            Assert.assertEquals(1, jsonParamResults.get(0).asInt());
 
         }
     }

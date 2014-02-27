@@ -1,14 +1,17 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.DefaultVertexQuery;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optLong;
 
 
 /**
@@ -63,8 +66,8 @@ public class RexsterVertexQuery extends DefaultVertexQuery {
             directionReturnToken = RexsterTokens.SLASH_BOTHCOUNT;
         }
 
-        final JSONObject jsonObject = RestHelper.get(buildUri(directionReturnToken));
-        return jsonObject.optLong(RexsterTokens.TOTAL_SIZE);
+        final ObjectNode jsonObject = RestHelper.get(buildUri(directionReturnToken));
+        return optLong(jsonObject, RexsterTokens.TOTAL_SIZE);
     }
 
     public Object vertexIds() {
@@ -77,11 +80,11 @@ public class RexsterVertexQuery extends DefaultVertexQuery {
             directionReturnToken = RexsterTokens.SLASH_BOTHIDS;
         }
 
-        final JSONArray jsonArray = RestHelper.getResultArray(buildUri(directionReturnToken));
+        final ArrayNode jsonArray = RestHelper.getResultArray(buildUri(directionReturnToken));
 
         final List<Object> list = new ArrayList<Object>();
-        for (int ix = 0; ix < jsonArray.length(); ix++) {
-            list.add(jsonArray.opt(ix));
+        for(JsonNode node : jsonArray) {
+            list.add(node);
         }
 
         return list;
