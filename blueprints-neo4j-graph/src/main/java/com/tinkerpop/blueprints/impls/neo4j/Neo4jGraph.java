@@ -54,7 +54,7 @@ import java.util.logging.Logger;
 public class Neo4jGraph implements TransactionalGraph, IndexableGraph, KeyIndexableGraph, MetaGraph<GraphDatabaseService> {
     private static final Logger logger = Logger.getLogger(Neo4jGraph.class.getName());
 
-    private GraphDatabaseService rawGraph;
+    protected GraphDatabaseService rawGraph;
     private static final String INDEXED_KEYS_POSTFIX = ":indexed_keys";
 
     protected final ThreadLocal<Transaction> tx = new ThreadLocal<Transaction>() {
@@ -131,6 +131,8 @@ public class Neo4jGraph implements TransactionalGraph, IndexableGraph, KeyIndexa
         this.checkElementsInTransaction.set(checkElementsInTransaction);
     }
 
+    protected Neo4jGraph() {}
+
     public Neo4jGraph(final String directory) {
         this(directory, null);
     }
@@ -171,7 +173,7 @@ public class Neo4jGraph implements TransactionalGraph, IndexableGraph, KeyIndexa
                 ConfigurationConverter.getMap(configuration.subset("blueprints.neo4j.conf")));
     }
 
-    private void loadKeyIndices() {
+    protected void loadKeyIndices() {
         for (final String key : this.getInternalIndexKeys(Vertex.class)) {
             this.createKeyIndex(key, Vertex.class);
         }
@@ -181,7 +183,7 @@ public class Neo4jGraph implements TransactionalGraph, IndexableGraph, KeyIndexa
         this.commit();
     }
 
-    private void freshLoad() {
+    protected void freshLoad() {
         // remove reference node in a single transaction
         try {
             this.autoStartTransaction();
