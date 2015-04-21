@@ -1,5 +1,6 @@
 package com.tinkerpop.blueprints.impls.rexster;
 
+import com.google.common.base.Joiner;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONTokens;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
@@ -14,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.List;
 
 /**
  * @author Marko A. Rodriguez (http://markorodriguez.com)
@@ -99,7 +101,11 @@ final class RestHelper {
             return "(" + GraphSONTokens.TYPE_FLOAT + "," + value + ")";
         else if (value instanceof Double)
             return "(" + GraphSONTokens.TYPE_DOUBLE + "," + value + ")";
-        else
+        else if (value instanceof List) {
+            Joiner joiner = Joiner.on(",");
+
+            return "(" + GraphSONTokens.TYPE_LIST + ",[" + joiner.join((List) value) + "])";
+        } else
             return "(s," + value.toString() + ")";
 
     }
