@@ -10,3 +10,13 @@ build_output.txt
 .classpath
 .project
 .settings
+blueprints-core/pom.xml.versionsBackup
+blueprints-dex-graph/pom.xml.versionsBackup
+blueprints-graph-jung/pom.xml.versionsBackup
+blueprints-graph-sail/pom.xml.versionsBackup
+blueprints-neo4j-graph/pom.xml.versionsBackup
+blueprints-orient-graph/pom.xml.versionsBackup
+blueprints-rexster-graph/pom.xml.versionsBackup
+blueprints-sail-graph/pom.xml.versionsBackup
+blueprints-test/pom.xml.versionsBackup
+pom.xml.versionsBackup
