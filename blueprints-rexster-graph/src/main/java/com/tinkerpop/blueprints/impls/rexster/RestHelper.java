@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Joiner;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONTokens;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.List;
 
 import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.getJsonNode;
 import static com.tinkerpop.blueprints.impls.rexster.util.JacksonUtil.optArray;
@@ -107,7 +109,11 @@ final class RestHelper {
             return "(" + GraphSONTokens.TYPE_FLOAT + "," + value + ")";
         else if (value instanceof Double)
             return "(" + GraphSONTokens.TYPE_DOUBLE + "," + value + ")";
-        else
+        else if (value instanceof List) {
+            Joiner joiner = Joiner.on(",");
+
+            return "(" + GraphSONTokens.TYPE_LIST + ",[" + joiner.join((List) value) + "])";
+        } else
             return "(s," + value.toString() + ")";
 
     }

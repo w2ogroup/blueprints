@@ -11,6 +11,9 @@
     <artifactId>blueprints-rexster-graph</artifactId>
     <name>Blueprints-RexsterGraph</name>
     <description>Blueprints property graph implementation for Rexster</description>
+    <properties>
+        <guava.version>18.0</guava.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.tinkerpop.blueprints</groupId>
@@ -21,6 +24,11 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.tinkerpop.blueprints</groupId>
