@@ -75,7 +75,7 @@
     </modules>
 
     <properties>
-        <blueprints.version>W2O-2.4.0</blueprints.version>
+        <blueprints.version>2.4.1-W2O</blueprints.version>
         <sesame.version>2.6.10</sesame.version>
         <sesametools.version>1.7</sesametools.version>
         <ripple.version>1.0</ripple.version>
